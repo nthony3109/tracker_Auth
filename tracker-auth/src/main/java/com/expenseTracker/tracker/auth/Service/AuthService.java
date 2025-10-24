@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -52,7 +55,12 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(
                         loginReq.getUsername().trim(),loginReq.getPassword().trim()));
         UserDetails user = (UserDetails) authentication.getPrincipal();
-        String token = jwtService.generateToken(new HashMap<>(), user.getUsername());
+        UserField user1 = userRepo.findByUsername(user.getUsername()) .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", user1.getId());
+        claims.put("Provider", "local");
+        String token = jwtService.generateToken(claims, user.getUsername());
         return  token;
     }
 
