@@ -3,6 +3,7 @@ package com.expenseTracker.tracker.auth.Config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebSecurity
@@ -31,21 +33,64 @@ public class filterChain {
 //        this.userDetailsService = userDetailsService;
 //    }
 
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws  Exception {
-        return    http
+    @Order(1)
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher("/api/**")
                 .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests( auth -> auth
-                        .requestMatchers("/api/login", "/api/register").permitAll()
-                        .anyRequest().authenticated())
-                // .httpBasic(Customizer.withDefaults())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/api/auth/register","/api/auth/del/{id}",
+                                "/api/auth/login", "/api/auth/get","/api/auth/profile/{userId}"
+                                                       ).permitAll()
+                        .anyRequest().authenticated()
+                )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .oauth2Login(oauth2 -> oauth2
-                        .successHandler(oauth2Handler) )
+//                .oauth2Login(oauth2 -> oauth2
+//                        .loginPage("/oauth2/authorization/google")
+//                        .successHandler(oauth2Handler)
+              //  )
                 .build();
     }
+
+    @Bean
+    @Order(2)
+    public SecurityFilterChain oauth2Security(HttpSecurity http) throws Exception {
+       return http
+                .securityMatcher("/oauth2/**", "/login/**", "/") // only handles oauth routes
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/", "/login", "/error").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .csrf(csrf -> csrf.disable())
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/oauth2/authorization/google")
+                        .successHandler(oauth2Handler)
+                )
+
+           .build();
+    }
+
+    //    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws  Exception {
+//        return    http
+//                .csrf(csrf -> csrf.disable())
+//                .authorizeHttpRequests( auth -> auth
+//                        .requestMatchers("/api/**").permitAll()
+//                        .anyRequest().authenticated())
+//                // .httpBasic(Customizer.withDefaults())
+//                .sessionManagement(session -> session
+//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+//                .oauth2Login(oauth2 -> oauth2
+//                        .successHandler(oauth2Handler) )
+//                .build();
+//    }
     @Bean
     public PasswordEncoder passwordEncoder() {
         return  new BCryptPasswordEncoder();
