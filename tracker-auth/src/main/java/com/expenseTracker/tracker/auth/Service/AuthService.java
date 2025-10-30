@@ -2,6 +2,8 @@ package com.expenseTracker.tracker.auth.Service;
 
 
 import com.expenseTracker.tracker.auth.DTO.LoginDTO;
+import com.expenseTracker.tracker.auth.DTO.LoginRes;
+import com.expenseTracker.tracker.auth.DTO.ProfileDTO;
 import com.expenseTracker.tracker.auth.DTO.RegisterDTO;
 import com.expenseTracker.tracker.auth.Model.UserField;
 import com.expenseTracker.tracker.auth.repo.UserRepo;
@@ -49,7 +51,7 @@ public class AuthService {
     return  registeredUser.getUsername() != null;
     }
 
-    public String loginUser(LoginDTO loginReq) {
+    public LoginRes loginUser(LoginDTO loginReq) {
         //System.out.println("from service" + loginReq.getPassword() + " " + loginReq.getUsername());
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -61,7 +63,7 @@ public class AuthService {
         claims.put("userId", user1.getId());
         claims.put("Provider", "local");
         String token = jwtService.generateToken(claims, user.getUsername());
-        return  token;
+        return  new LoginRes(token,user1.getId());
     }
 
     public List<UserField> getUsers() {
@@ -76,5 +78,20 @@ public class AuthService {
             return true;
         }
         return false;
+    }
+
+    public ProfileDTO getUserProfile(Long userId) {
+        ProfileDTO profileDTO= new ProfileDTO();
+        Optional<UserField> user = userRepo.findById(userId);
+        if (user.isEmpty()) {
+            throw new RuntimeException("user not found");
+        }
+        profileDTO.setEmail(user.get().getEmail());
+        profileDTO.setFirstname(user.get().getFirstname());
+        profileDTO.setLastname(user.get().getLastname());
+        profileDTO.setUsername(user.get().getUsername());
+        System.out.println(profileDTO);
+        System.out.println("data from user: " + user.get().getUsername());
+        return profileDTO;
     }
 }
