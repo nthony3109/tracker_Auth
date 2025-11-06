@@ -14,19 +14,20 @@ import lombok.NoArgsConstructor;
 public class UserField {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private  long id;
+    private  Long id;
     private String firstname;
     private String lastname;
     private  String email;
     private  String username;
     private  String password;
     private String phone;
+    private String tokenRefresher;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -76,5 +77,13 @@ public class UserField {
 
     public void setFirstname(String firstname) {
         this.firstname = firstname;
+    }
+
+    public String getTokenRefresher() {
+        return tokenRefresher;
+    }
+
+    public void setTokenRefresher(String tokenRefresher) {
+        this.tokenRefresher = tokenRefresher;
     }
 }
