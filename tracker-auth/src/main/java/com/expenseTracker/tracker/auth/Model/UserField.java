@@ -21,7 +21,7 @@ public class UserField {
     private  String username;
     private  String password;
     private String phone;
-    private String tokenRefresher;
+
 
     public Long getId() {
         return id;
@@ -79,11 +79,5 @@ public class UserField {
         this.firstname = firstname;
     }
 
-    public String getTokenRefresher() {
-        return tokenRefresher;
-    }
 
-    public void setTokenRefresher(String tokenRefresher) {
-        this.tokenRefresher = tokenRefresher;
-    }
 }
