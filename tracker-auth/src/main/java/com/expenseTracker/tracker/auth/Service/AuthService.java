@@ -5,7 +5,9 @@ import com.expenseTracker.tracker.auth.DTO.LoginDTO;
 import com.expenseTracker.tracker.auth.DTO.LoginRes;
 import com.expenseTracker.tracker.auth.DTO.ProfileDTO;
 import com.expenseTracker.tracker.auth.DTO.RegisterDTO;
+import com.expenseTracker.tracker.auth.Model.Rtoken;
 import com.expenseTracker.tracker.auth.Model.UserField;
+import com.expenseTracker.tracker.auth.repo.RtokenRepo;
 import com.expenseTracker.tracker.auth.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,9 +33,13 @@ public class AuthService {
     @Autowired
     private  UserRepo userRepo;
     @Autowired
+    RtokenRepo rtokenRepo;
+    @Autowired
     private PasswordEncoder encoder;
     @Autowired
     JwtService jwtService;
+    @Autowired
+    RtokenService rtokenService;
     @Autowired
     private AuthenticationManager authenticationManager;
    UserField user = new UserField();
@@ -62,8 +68,10 @@ public class AuthService {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", user1.getId());
         claims.put("Provider", "local");
-        String token = jwtService.generateToken(claims, user.getUsername());
-        return  new LoginRes(token,user1.getId());
+        String accessToken = jwtService.generateToken(claims, user.getUsername());
+        Rtoken rtoken = rtokenService.generateRtoken(user1);
+        String refreshToken = rtoken.getRefreshToken();
+        return  new LoginRes(accessToken, refreshToken, user1.getId());
     }
 
     public List<UserField> getUsers() {
@@ -93,5 +101,18 @@ public class AuthService {
         System.out.println(profileDTO);
         System.out.println("data from user: " + user.get().getUsername());
         return profileDTO;
+    }
+    // to refresh accessToken
+    public LoginRes reGenerateAccessToken(String token) {
+        boolean isValid = rtokenService.isTokenValid(token);
+        if (!isValid) {
+            throw new RuntimeException("invalid refresh token");
+        }
+        UserField userField = rtokenRepo.findByRtoken(token).get().getUserField();
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", user.getId());
+        claims.put("Provider", "local");
+        String newAccessToken = jwtService.generateToken(claims, user.getUsername());
+        return new LoginRes(newAccessToken, token, user.getId());
     }
 }
