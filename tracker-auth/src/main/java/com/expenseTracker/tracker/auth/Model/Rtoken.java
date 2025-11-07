@@ -1,4 +1,4 @@
 package com.expenseTracker.tracker.auth.Model;
 
-public class UserField {
+public class Rtoken {
 }
