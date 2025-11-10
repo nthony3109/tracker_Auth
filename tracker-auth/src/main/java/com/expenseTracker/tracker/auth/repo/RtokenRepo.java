@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface RtokenRepo extends JpaRepository<Rtoken,Long> {
-   Optional<Rtoken> findByRtoken(String token);
+   Optional<Rtoken> findByRefreshToken(String token);
    void  deleteAllRtokenByUser(UserField user);
 }
