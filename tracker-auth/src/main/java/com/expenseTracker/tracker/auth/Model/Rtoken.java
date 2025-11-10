@@ -22,10 +22,10 @@ public class Rtoken {
     private LocalDateTime expiryDate;
     @ManyToOne(fetch = FetchType.LAZY,optional = false)
     @JoinColumn(name = "user_field_id", referencedColumnName = "id", nullable = false)
-    private UserField userField;
+    private UserField user;
 
     public  void setUserField(UserField user) {
-        this.userField = user;
+        this.user= user;
     }
 
 }
