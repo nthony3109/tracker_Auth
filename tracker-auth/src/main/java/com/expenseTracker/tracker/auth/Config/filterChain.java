@@ -42,7 +42,7 @@ public class filterChain {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/auth/register","/api/auth/del/{id}",
+                                "/api/auth/register","/api/auth/del/{id}", "/api/auth/refreshToken",
                                 "/api/auth/login", "/api/auth/get","/api/auth/profile/{userId}"
                                                        ).permitAll()
                         .anyRequest().authenticated()
