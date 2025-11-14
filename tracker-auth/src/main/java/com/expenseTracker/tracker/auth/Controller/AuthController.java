@@ -71,4 +71,14 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(refreshedToken);
     }
 
+    // logout user by refresh token deletion
+    @DeleteMapping("/auth/logout")
+    public ResponseEntity<?> logoutUser(@RequestBody RefreshTokenReq req) {
+        boolean isLoggedOut = service.logOutUser(req.getTokenRefresher());
+        if (!isLoggedOut) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("logout failed");
+        }
+        return ResponseEntity.ok("user logged out successfully");
+    }
+
 }
