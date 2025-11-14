@@ -112,4 +112,14 @@ public class AuthService {
         String newAccessToken = jwtService.generateToken(claims, user.getUsername());
         return new RefreshedToken(newAccessToken, token);
     }
+
+    public boolean logOutUser(String tokenRefresher) {
+        Optional<Rtoken> token =rtokenRepo.findByRefreshToken(tokenRefresher);
+        if (token.isEmpty()) {
+            return false;
+        }
+        UserField user = token.get().getUser();
+        rtokenRepo.deleteAllRtokenByUser(user);
+                return rtokenRepo.findByRefreshToken(tokenRefresher).isEmpty();
+    }
 }
