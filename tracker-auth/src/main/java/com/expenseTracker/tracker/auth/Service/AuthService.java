@@ -119,7 +119,6 @@ public class AuthService {
             return false;
         }
         UserField user = token.get().getUser();
-        rtokenRepo.findByRefreshToken(tokenRefresher);
         rtokenRepo.deleteAllRtokenByUser(user);
                 return rtokenRepo.findByRefreshToken(tokenRefresher).isEmpty();
     }
